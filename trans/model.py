@@ -70,7 +70,7 @@ class QCANet(nn.Module):
 
         attentions = [attention]
         for encoder in self.encoder_layers:
-            output, attention = encoder(output, output, output, attention_mask)
+            output, attention = encoder(output, output, q, attention_mask)
             attentions.append(attention)
 
         return output, attentions
@@ -104,8 +104,8 @@ class MyNet(nn.Module):
         )
 
     def forward(self, s1, s2):
-        y1, y1_attentions = self.qca(s1, s2, s2)
-        y2, y2_attentions = self.qca(s2, s1, s1)
+        y1, y1_attentions = self.qca(s1, s2, s1)
+        y2, y2_attentions = self.qca(s2, s1, s2)
 
         y1 = torch.mean(y1, dim=1)
         y2 = torch.mean(y2, dim=1)

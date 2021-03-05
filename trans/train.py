@@ -8,25 +8,21 @@ import dataloader, model
 
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
-input_size = 300
-output_size = 300
-num_chans = [300, 300, 300, 300]
-k_size = 2
+input_feature = 300
+output_feature = 300
 dropout = 0.3
-emb_dropout = 0.1
-tied = False
 sentence_len = 40
 
 net = model.MyNet(max_seq_len=sentence_len,
                   num_layers=6,
-                  in_feature=300,
-                  out_feature=300,
+                  in_feature=input_feature,
+                  out_feature=output_feature,
                   num_heads=4,
                   ffn_dim=2048,
                   dropout=dropout)
 net.to(device)
 
-train_loader = data.DataLoader(dataloader.MyDataset('../dataset/pair_train_correct.tsv', sentence_len=sentence_len),
+train_loader = data.DataLoader(dataloader.MyDataset('../dataset/snli/pair_train_correct.tsv', sentence_len=sentence_len),
                                batch_size=32,
                                shuffle=True)
 
@@ -65,9 +61,9 @@ for epoch in range(num_epoch):
     torch.save(net, './model/net.m')
 
     with torch.no_grad():
-        test_loader = data.DataLoader(dataloader.MyDataset('../dataset/pair_test.tsv', sentence_len=sentence_len),
-                                   batch_size=128,
-                                   shuffle=False)
+        test_loader = data.DataLoader(dataloader.MyDataset('../dataset/snli/pair_test.tsv', sentence_len=sentence_len),
+                                      batch_size=128,
+                                      shuffle=False)
 
         index = 0
         correct = 0

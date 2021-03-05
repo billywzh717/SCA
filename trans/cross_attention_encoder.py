@@ -14,8 +14,6 @@ def padding_mask(seq_k, seq_q):
     return pad_mask
 
 
-
-
 class ScaledDotProductAttention(nn.Module):
     """Scaled dot-product attention mechanism."""
 
@@ -60,11 +58,11 @@ class MultiHeadAttention(nn.Module):
         self.num_heads = num_heads
         self.out_feature = out_feature
 
-        self.linear_q = nn.Linear(in_feature, num_heads*out_feature)
+        self.linear_q = nn.Linear(in_feature, num_heads * out_feature)
         torch.nn.init.xavier_uniform_(self.linear_q.weight, gain=1)
-        self.linear_k = nn.Linear(in_feature, num_heads*out_feature)
+        self.linear_k = nn.Linear(in_feature, num_heads * out_feature)
         torch.nn.init.xavier_uniform_(self.linear_k.weight, gain=1)
-        self.linear_v = nn.Linear(in_feature, num_heads*out_feature)
+        self.linear_v = nn.Linear(in_feature, num_heads * out_feature)
         torch.nn.init.xavier_uniform_(self.linear_v.weight, gain=1)
 
         self.w = torch.nn.Parameter(
@@ -80,7 +78,7 @@ class MultiHeadAttention(nn.Module):
         torch.nn.init.xavier_uniform_(self.wv, gain=1)
         '''
         self.dot_product_attention = ScaledDotProductAttention(dropout)
-        self.linear_final = nn.Linear(num_heads*out_feature, in_feature)
+        self.linear_final = nn.Linear(num_heads * out_feature, in_feature)
         torch.nn.init.xavier_uniform_(self.linear_final.weight, gain=1)
         self.dropout = nn.Dropout(dropout)
         # multi-head attention之后需要做layer norm
@@ -113,10 +111,9 @@ class MultiHeadAttention(nn.Module):
         key = key.transpose(1, 2)
         value = value.transpose(1, 2)
 
-
         # scaled dot product attention
         context, attention = self.attention(query, key, value, self.dim_per_head, None)
-        context = context.transpose(1, 2).contiguous().view(batch_size, -1, self.out_feature*self.num_heads)
+        context = context.transpose(1, 2).contiguous().view(batch_size, -1, self.out_feature * self.num_heads)
 
         '''
         if attn_mask:
@@ -216,5 +213,3 @@ class CrossAttentionEncoderLayer(nn.Module):
         output = self.feed_forward(context)
 
         return output, attention
-
-

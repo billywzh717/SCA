@@ -1,7 +1,7 @@
 import torch
+import torch.nn as nn
 import torch.optim as optim
 from torch.utils import data
-from TCN.word_cnn.model import *
 from datetime import datetime
 
 import dataloader, model
@@ -30,9 +30,9 @@ def get_parameter_number(net):
 print(get_parameter_number(net))
 
 with torch.no_grad():
-    test_loader = data.DataLoader(dataloader.MyDataset('../dataset/pair_train.tsv', sentence_len=sentence_len),
-                               batch_size=128,
-                               shuffle=False)
+    test_loader = data.DataLoader(dataloader.MyDataset('../dataset/snli/pair_test.tsv', sentence_len=sentence_len),
+                                  batch_size=128,
+                                  shuffle=False)
 
     index = 0
     correct = 0
@@ -53,7 +53,5 @@ with torch.no_grad():
             if out[i] == r[i]:
                 correct += 1
 
-        index += 1
-        if index % 100 == 0:
-            accuracy = correct / sum_test
-            print('test', accuracy, datetime.now())
+    accuracy = correct / sum_test
+    print('test', accuracy, datetime.now())

@@ -1,10 +1,11 @@
-sentence_len layers q    k    v                epoch  acc    lr
-40           3      s1 s1 s1 -> out out out    20            0.00001
+sentence_len layers q    k    v                epoch/acc
+40           3      s1 s1 s1 -> out out out    1/63.95%
 
-40           3      s1 s2 s2 -> out out out    5      72.5%  0.00001
-40           6      s1 s2 s2 -> out out out    20     77.7%  0.00001
+40           3      s1 s2 s2 -> out out out    5/72.5%
+40           6      s1 s2 s2 -> out out out    20/77.7%
+40           12      s1 s2 s2 -> out out out    1/64.34%
 
-40           6      s1 s2 s1 -> out out out    20            0.00001
-40           6      s1 s2 s1 -> s1 s2 out      20            0.00001
-40           6      s1 s2 s1 -> out out s1     20            0.00001
+40           6      s1 s2 s1 -> out out out    1/65.59% 2/68.7%
+40           6      s1 s2 s1 -> s1 s2 out      1/62.51%
+40           6      s1 s2 s1 -> out out s1     1/64.22%
 
