@@ -1,23 +1,38 @@
-import jieba
-from gensim.models import KeyedVectors
-from datetime import datetime
+import urllib3
+import base64
 import torch
-
+import torch.nn as nn
+import torchtext.vocab as vocab
+import nltk
+from nltk.tokenize import RegexpTokenizer
+import pandas as pd
+import jieba
 import re
+from gensim.models import KeyedVectors
 
-wv_from_text = KeyedVectors.load_word2vec_format('dataset/tencent/sgns.baidubaike.bigram-char', binary=False)
+http = urllib3.PoolManager()
+r = http.request('GET', 'http://127.0.0.1:5000/word2vec/model?word=好')
+data = r.data
+print(data)
+bbs = str(base64.b64decode(data))
+print(bbs)
 
-def encoder(sentence):
-    remove_chars = '[·’!"\#$%&\'()＃！（）*+,-./:;<=>?\@，：?￥★、…．＞【】［］《》？“”‘’\[\\]^_`{|}~]+'
-    string = re.sub(remove_chars, "", sentence)
-    l = jieba.cut(string)
-    li = []
-    for word in l:
-        vc = wv_from_text.get_vector(word)
-        li.append(vc)
-    ten = torch.tensor(li)
-    return ten
+wv_from_text = KeyedVectors.load_word2vec_format('./dataset/tencent/sgns.baidubaike.bigram-char', binary=False)
 
-sentence = "+蚂=蚁！花!呗/期?免,息★.---《平凡的世界》：了*解一（#@）个“普通人”波涛汹涌的内心世界！"
-ten = encoder(sentence)
+def get_embeddings(sentence, sentence_len=64):
+    try:
+        remove_chars = '[·’!"\#$%&\'()＃！（）*+,-./:;<=>?\@，：?￥★、…．＞【】［］《》？“”‘’\[\\]^_`{|}~]+'
+        string = re.sub(remove_chars, "", sentence)
+        l = jieba.cut(string)
+        li = []
+        for word in l:
+            vc = wv_from_text.get_vector(word)
+            li.append(vc)
+        ten = torch.tensor(li)
+        return ten
+    except Exception as e:
+        print(e, sentence)
+        return torch.zeros(sentence_len, 300)
+
+ten = get_embeddings('好')
 print(ten)

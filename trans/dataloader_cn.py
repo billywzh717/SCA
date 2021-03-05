@@ -5,16 +5,22 @@ import torchtext.vocab as vocab
 import nltk
 from nltk.tokenize import RegexpTokenizer
 import pandas as pd
+import jieba
+import re
+from gensim.models import KeyedVectors
 
 # nltk.download('punkt')
 # nltk.download('stopwords')
-tokenizer = RegexpTokenizer(r'\w+')
+# tokenizer = RegexpTokenizer(r'\w+')
 
 # print([key for key in vocab.pretrained_aliases.keys() if "glove" in key])
-cache_dir = "../glove/300"
-glove = vocab.GloVe(name='6B', dim=300, cache=cache_dir)
+# cache_dir = "../glove/300"
+# glove = vocab.GloVe(name='6B', dim=300, cache=cache_dir)
 
+wv_from_text = KeyedVectors.load('../dataset/tencent/baidubaike', mmap='r')
+print('load word2vec finished')
 
+'''
 def get_embeddings(sentence, sentence_len=64):
     try:
         # sentence = sentence.lower()
@@ -22,6 +28,23 @@ def get_embeddings(sentence, sentence_len=64):
         tokens = tokenizer.tokenize(sentence)
         # print(tokens)
         return glove.get_vecs_by_tokens(tokens)
+    except Exception as e:
+        print(e, sentence)
+        return torch.zeros(sentence_len, 300)
+'''
+
+
+def get_embeddings(sentence, sentence_len=64):
+    try:
+        remove_chars = '[·’!"\#$%&\'()＃！（）*+,-./:;<=>?\@，：?￥★、…．＞【】［］《》？“”‘’\[\\]^_`{|}~]+'
+        string = re.sub(remove_chars, "", sentence)
+        l = jieba.cut(string)
+        li = []
+        for word in l:
+            vc = wv_from_text.get_vector(word)
+            li.append(vc)
+        ten = torch.tensor(li)
+        return ten
     except Exception as e:
         print(e, sentence)
         return torch.zeros(sentence_len, 300)
@@ -42,9 +65,9 @@ class MyDataset(data.Dataset):
                                   sep='\t',
                                   header=None,
                                   error_bad_lines=True)
-        self.relation = self.reader.iloc[:, 0]
-        self.sentence1 = self.reader.iloc[:, 1]
-        self.sentence2 = self.reader.iloc[:, 2]
+        self.sentence1 = self.reader.iloc[:, 0]
+        self.sentence2 = self.reader.iloc[:, 1]
+        self.relation = self.reader.iloc[:, 2]
         self.len = len(self.relation)
         self.sentence_len = sentence_len
 
@@ -65,6 +88,6 @@ class MyDataset(data.Dataset):
             return embedding[0:target_len, :]
         else:
             zeros = torch.zeros(target_len - dim1, dim2)
-            #neg_inf = zeros - float('inf')
+            # neg_inf = zeros - float('inf')
             embedding = torch.cat((embedding, zeros))
             return embedding

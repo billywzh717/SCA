@@ -4,7 +4,7 @@ import torch.optim as optim
 from torch.utils import data
 from datetime import datetime
 
-import dataloader, model
+import dataloader_cn, model
 
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
@@ -22,7 +22,12 @@ net = model.MyNet(max_seq_len=sentence_len,
                   dropout=dropout)
 net.to(device)
 
+'''
 train_loader = data.DataLoader(dataloader.MyDataset('../dataset/snli/pair_train_correct.tsv', sentence_len=sentence_len),
+                               batch_size=32,
+                               shuffle=True)
+'''
+train_loader = data.DataLoader(dataloader_cn.MyDataset('../dataset/lcqmc/train.tsv', sentence_len=sentence_len),
                                batch_size=32,
                                shuffle=True)
 
