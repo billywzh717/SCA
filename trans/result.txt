@@ -1,4 +1,8 @@
+snli
+
 sentence_len layers q    k    v                epoch/acc
+
+mean+concat+mlp
 40           3      s1 s1 s1 -> out out out    1/63.95%
 
 40           3      s1 s2 s2 -> out out out    5/72.5%
@@ -8,4 +12,14 @@ sentence_len layers q    k    v                epoch/acc
 40           6      s1 s2 s1 -> out out out    1/65.59% 2/68.7%
 40           6      s1 s2 s1 -> s1 s2 out      1/62.51%
 40           6      s1 s2 s1 -> out out s1     1/64.22%
+
+textcnn+concat+mlp
+40           6      s1 s2 s1 -> out out out    1/60.52%
+textcnn+maxpool+concat+mlp
+40           6      s1 s2 s1 -> out out out    1/56.35%
+
+
+lcqmc char
+40           6      s1 s2 s1 -> out out out    1/70.7%
+lcqmc word
 

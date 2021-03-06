@@ -13,25 +13,33 @@ class TextCNN(nn.Module):
 
         self.conv2 = nn.Conv2d(in_channels=in_channels,
                                out_channels=out_channels,
-                               kernel_size=(4, in_feature))
+                               kernel_size=(3, in_feature))
 
         self.conv3 = nn.Conv2d(in_channels=in_channels,
                                out_channels=out_channels,
-                               kernel_size=(8, in_feature))
+                               kernel_size=(4, in_feature))
 
         self.conv4 = nn.Conv2d(in_channels=in_channels,
                                out_channels=out_channels,
-                               kernel_size=(16, in_feature))
+                               kernel_size=(5, in_feature))
 
         self.flatten = nn.Flatten(start_dim=1, end_dim=-1)
 
     def forward(self, x):
         input = x.unsqueeze(dim=1)
+
+        '''
+        conv1 = self.conv1(input)
+        conv2 = self.conv2(input)
+        conv3 = self.conv3(input)
+        conv4 = self.conv4(input)
+        '''
         conv1 = torch.max(self.conv1(input), dim=2)[0]
         conv2 = torch.max(self.conv2(input), dim=2)[0]
         conv3 = torch.max(self.conv3(input), dim=2)[0]
         conv4 = torch.max(self.conv4(input), dim=2)[0]
-        output = self.flatten(torch.cat((conv1, conv2, conv3, conv4), dim=1))
+
+        output = self.flatten(torch.cat((conv1, conv2, conv3, conv4), dim=2))
         return output
 
 
@@ -70,7 +78,7 @@ class QCANet(nn.Module):
 
         attentions = [attention]
         for encoder in self.encoder_layers:
-            output, attention = encoder(output, output, q, attention_mask)
+            output, attention = encoder(output, output, output, attention_mask)
             attentions.append(attention)
 
         return output, attentions
@@ -93,6 +101,7 @@ class MyNet(nn.Module):
                           num_heads=num_heads,
                           ffn_dim=ffn_dim,
                           dropout=dropout)
+        self.textcnn = TextCNN(in_channels=1, out_channels=1, in_feature=300)
         self.mlp = nn.Sequential(
             nn.Linear(in_features=600, out_features=256),
             nn.ReLU(),
@@ -100,12 +109,15 @@ class MyNet(nn.Module):
             nn.Linear(in_features=256, out_features=32),
             nn.ReLU(),
             nn.BatchNorm1d(num_features=32),
-            nn.Linear(in_features=32, out_features=3)
+            nn.Linear(in_features=32, out_features=2)
         )
 
     def forward(self, s1, s2):
         y1, y1_attentions = self.qca(s1, s2, s1)
         y2, y2_attentions = self.qca(s2, s1, s2)
+
+        # y1 = self.textcnn(y1)
+        # y2 = self.textcnn(y2)
 
         y1 = torch.mean(y1, dim=1)
         y2 = torch.mean(y2, dim=1)

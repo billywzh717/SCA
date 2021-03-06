@@ -4,7 +4,8 @@ import torch.optim as optim
 from torch.utils import data
 from datetime import datetime
 
-import dataloader, model
+import dataloader_cn as dataloader
+import model
 
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
@@ -30,7 +31,7 @@ def get_parameter_number(net):
 print(get_parameter_number(net))
 
 with torch.no_grad():
-    test_loader = data.DataLoader(dataloader.MyDataset('../dataset/snli/pair_test.tsv', sentence_len=sentence_len),
+    test_loader = data.DataLoader(dataloader.MyDataset('../dataset/lcqmc-clean/test.tsv', sentence_len=sentence_len),
                                   batch_size=128,
                                   shuffle=False)
 

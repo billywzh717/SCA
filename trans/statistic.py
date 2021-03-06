@@ -4,7 +4,7 @@ max_len = 0
 total_len = 0
 avg_len = 0
 
-with open('../dataset/lcqmc/train.tsv', 'r', encoding='utf8') as fr:
+with open('../dataset/lcqmc-clean/train.tsv', 'r', encoding='utf8') as fr:
     line = fr.readline()
     line = fr.readline()
     while line != '':

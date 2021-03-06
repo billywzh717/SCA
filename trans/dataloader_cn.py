@@ -38,9 +38,9 @@ def get_embeddings(sentence, sentence_len=64):
     try:
         remove_chars = '[·’!"\#$%&\'()＃！（）*+,-./:;<=>?\@，：?￥★、…．＞【】［］《》？“”‘’\[\\]^_`{|}~]+'
         string = re.sub(remove_chars, "", sentence)
-        l = jieba.cut(string)
+        # l = jieba.cut(string)
         li = []
-        for word in l:
+        for word in string:
             vc = wv_from_text.get_vector(word)
             li.append(vc)
         ten = torch.tensor(li)
@@ -48,15 +48,6 @@ def get_embeddings(sentence, sentence_len=64):
     except Exception as e:
         print(e, sentence)
         return torch.zeros(sentence_len, 300)
-
-
-def relation_to_index(relation):
-    if relation == 'neutral':
-        return 0
-    if relation == 'entailment':
-        return 1
-    if relation == 'contradiction':
-        return 2
 
 
 class MyDataset(data.Dataset):
@@ -79,7 +70,7 @@ class MyDataset(data.Dataset):
         s1_embedding = self.zero_padding(s1_embedding, target_len=self.sentence_len)
         s2_embedding = get_embeddings(self.sentence2[index], self.sentence_len)
         s2_embedding = self.zero_padding(s2_embedding, target_len=self.sentence_len)
-        return relation_to_index(self.relation[index]), s1_embedding, s2_embedding
+        return self.relation[index], s1_embedding, s2_embedding
 
     def zero_padding(self, embedding, target_len):
         dim1 = embedding.shape[0]
