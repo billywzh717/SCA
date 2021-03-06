@@ -18,7 +18,7 @@ data_path = '../dataset/lcqmc-clean/train.tsv'
 
 
 net = model.MyNet(max_seq_len=sentence_len,
-                  num_layers=6,
+                  num_layers=12,
                   in_feature=input_feature,
                   out_feature=output_feature,
                   num_heads=4,
@@ -30,7 +30,7 @@ train_loader = data.DataLoader(dataloader.MyDataset(data_path, sentence_len=sent
                                batch_size=32,
                                shuffle=True)
 
-num_epoch = 20
+num_epoch = 100
 optimizer = optim.Adam(net.parameters(), lr=0.00001)
 
 # print(net)

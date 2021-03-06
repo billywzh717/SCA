@@ -20,6 +20,13 @@ textcnn+maxpool+concat+mlp
 
 
 lcqmc char
-40           6      s1 s2 s1 -> out out out    1/70.7%
+40           6      s1 s2 s1 -> out out out    1/70.7% 6/79.2% 7/79.2% 10/79.0
+40           12     s1 s2 s1 -> out out out    1/
+40           6      s1 s1 s1 -> out out out    1/70.66%
+30           6      s1 s1 s1 -> out out out    1/69.75%
+manhadun
+40           6      s1 s2 s1 -> out out out    1/70.7% 6/79.2% 7/79.2%
+30           6      s1 s2 s1 -> out out out    1/69.5% 2/74.1%
 lcqmc word
+40           6      s1 s2 s1 -> out out out    1/
 

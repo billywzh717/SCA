@@ -31,7 +31,7 @@ def get_parameter_number(net):
 print(get_parameter_number(net))
 
 with torch.no_grad():
-    test_loader = data.DataLoader(dataloader.MyDataset('../dataset/lcqmc-clean/test.tsv', sentence_len=sentence_len),
+    test_loader = data.DataLoader(dataloader.MyDataset('../dataset/lcqmc-clean/train.tsv', sentence_len=sentence_len),
                                   batch_size=128,
                                   shuffle=False)
 

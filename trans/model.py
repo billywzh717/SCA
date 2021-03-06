@@ -101,9 +101,9 @@ class MyNet(nn.Module):
                           num_heads=num_heads,
                           ffn_dim=ffn_dim,
                           dropout=dropout)
-        self.textcnn = TextCNN(in_channels=1, out_channels=1, in_feature=300)
+        self.textcnn = TextCNN(in_channels=1, out_channels=1, in_feature=in_feature)
         self.mlp = nn.Sequential(
-            nn.Linear(in_features=600, out_features=256),
+            nn.Linear(in_features=2*in_feature, out_features=256),
             nn.ReLU(),
             nn.BatchNorm1d(num_features=256),
             nn.Linear(in_features=256, out_features=32),
@@ -123,9 +123,12 @@ class MyNet(nn.Module):
         y2 = torch.mean(y2, dim=1)
 
         y = torch.cat((y1, y2), dim=1)
-        # y = torch.cat((y, torch.sub(y1, y2)), dim=1)
-        # y = torch.cat((y, torch.add(y1, y2)), dim=1)
         output = self.mlp(y)
+
+        # correct = torch.exp(-torch.sum(torch.abs(y1 - y2), dim=1))
+        # wrong = torch.maximum(torch.zeros_like(1 - correct), 1 - correct)
+        # output = torch.stack((wrong, correct), dim=1)
+
         return output
 
 
