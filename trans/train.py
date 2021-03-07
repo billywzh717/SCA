@@ -18,7 +18,7 @@ data_path = '../dataset/lcqmc-clean/train.tsv'
 
 
 net = model.MyNet(max_seq_len=sentence_len,
-                  num_layers=12,
+                  num_layers=6,
                   in_feature=input_feature,
                   out_feature=output_feature,
                   num_heads=4,
