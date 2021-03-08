@@ -4,11 +4,10 @@ max_len = 0
 total_len = 0
 avg_len = 0
 
-with open('../dataset/lcqmc-clean/train.tsv', 'r', encoding='utf8') as fr:
-    line = fr.readline()
+with open('../dataset/pawsx/train.tsv', 'r', encoding='utf8') as fr:
     line = fr.readline()
     while line != '':
-        s1, s2, label = line.split('\t')
+        id, s1, s2, label = line.split('\t')
         l1 = len(s1)
         l2 = len(s2)
 

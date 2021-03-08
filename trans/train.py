@@ -4,7 +4,7 @@ import torch.optim as optim
 from torch.utils import data
 from datetime import datetime
 
-import dataloader_cn as dataloader
+import dataloader_pawsx as dataloader
 import model
 
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
@@ -12,13 +12,14 @@ device = 'cuda' if torch.cuda.is_available() else 'cpu'
 input_feature = 300
 output_feature = 300
 dropout = 0.3
-sentence_len = 40
+sentence_len = 128
 # dataset = '../dataset/snli/pair_train_correct.tsv'
-data_path = '../dataset/lcqmc-clean/train.tsv'
+# data_path = '../dataset/lcqmc-clean/train.tsv'
+data_path = '../dataset/pawsx/train.tsv'
 
 
 net = model.MyNet(max_seq_len=sentence_len,
-                  num_layers=6,
+                  num_layers=3,
                   in_feature=input_feature,
                   out_feature=output_feature,
                   num_heads=4,
@@ -65,7 +66,7 @@ for epoch in range(num_epoch):
     torch.save(net, './model/net.m')
 
     with torch.no_grad():
-        test_loader = data.DataLoader(dataloader.MyDataset('../dataset/lcqmc-clean/test.tsv', sentence_len=sentence_len),
+        test_loader = data.DataLoader(dataloader.MyDataset('../dataset/pawsx/test.tsv', sentence_len=sentence_len),
                                       batch_size=128,
                                       shuffle=False)
 
