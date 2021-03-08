@@ -4,7 +4,7 @@ import torch.optim as optim
 from torch.utils import data
 from datetime import datetime
 
-import dataloader_cn as dataloader
+import dataloader_pawsx as dataloader
 import model
 
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
@@ -18,7 +18,7 @@ emb_dropout = 0.1
 tied = False
 sentence_len = 40
 
-net = torch.load('./model/net.m')
+net = torch.load('./test-result/ca-3layer/net.m')
 net.to(device)
 loss = nn.CrossEntropyLoss()
 
@@ -31,7 +31,7 @@ def get_parameter_number(net):
 print(get_parameter_number(net))
 
 with torch.no_grad():
-    test_loader = data.DataLoader(dataloader.MyDataset('../dataset/lcqmc-clean/train.tsv', sentence_len=sentence_len),
+    test_loader = data.DataLoader(dataloader.MyDataset('../dataset/pawsx/test.tsv', sentence_len=sentence_len),
                                   batch_size=128,
                                   shuffle=False)
 

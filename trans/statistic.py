@@ -4,12 +4,12 @@ max_len = 0
 total_len = 0
 avg_len = 0
 
-with open('../dataset/pawsx/train.tsv', 'r', encoding='utf8') as fr:
+with open('../dataset/snli/pair_train.tsv', 'r', encoding='utf8') as fr:
     line = fr.readline()
     while line != '':
-        id, s1, s2, label = line.split('\t')
-        l1 = len(s1)
-        l2 = len(s2)
+        label, s1, s2 = line.split('\t')
+        l1 = len(s1.split(' '))
+        l2 = len(s2.split(' '))
 
         min_len = l1 if l1 < min_len else min_len
         min_len = l2 if l2 < min_len else min_len
