@@ -15,8 +15,22 @@ mean+concat+mlp
 
 textcnn+concat+mlp
 40           6      s1 s2 s1 -> out out out    1/60.52%
+bigru+textcnn+concat+mlp
+40           3      s1 s2 s1 -> out out out    1/65.93% 2/67.26%
+40           3      s1 s2 s1 -> out out out    1/65.93% 2/67.26%
+transformer->bigru 600->textcnn->concat->mlp
+40           3      s1 s2 s1 -> out out out    0/68.85% 1/72.52%
 textcnn+maxpool+concat+mlp
 40           6      s1 s2 s1 -> out out out    1/56.35%
+transformer->bigru 600->same transformer->concat->mlp
+40           3      s1 s2 s1 -> out out out    0/69.85% 1/72.73% 2/74.71% 3/75.83%
+transformer->bigru 600->transformer->bigru 600->transformer->concat->mlp
+40           3      s1 s2 s1 -> out out out    0/69.11% 1/73.5% 2/75.18% 3/75.8% 4/77.36%
+focal loss
+40           3      s1 s2 s1 -> out out out    0/
+
+
+
 
 
 lcqmc char
@@ -26,6 +40,9 @@ lcqmc char
 64           6      s1 s2 s1 -> out out out    1
 40           12     s1 s2 s1 -> out out out    1/
 30           6      s1 s1 s1 -> out out out    1/69.75%
+catnet
+40           3      s1 s2 s1 -> out out out    0/
+
 manhadun
 40           6      s1 s2 s1 -> out out out    1/70.7% 6/79.2% 7/79.2%
 30           6      s1 s2 s1 -> out out out    1/69.5% 2/74.1%

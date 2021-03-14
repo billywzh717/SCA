@@ -23,16 +23,16 @@ def get_embeddings(sentence, sentence_len=64):
         # print(tokens)
         return glove.get_vecs_by_tokens(tokens)
     except Exception as e:
-        print(e, sentence)
+        print(e, sentence, sentence)
         return torch.zeros(sentence_len, 300)
 
 
 def relation_to_index(relation):
-    if relation == 'neutral':
-        return 0
-    if relation == 'entailment':
-        return 1
     if relation == 'contradiction':
+        return 0
+    if relation == 'neutral':
+        return 1
+    if relation == 'entailment':
         return 2
 
 
@@ -53,29 +53,24 @@ class MyDataset(data.Dataset):
 
     def __getitem__(self, index):
         s1_embedding = get_embeddings(self.sentence1[index], self.sentence_len)
-        s1_embedding = self.zero_padding(s1_embedding, target_len=self.sentence_len)
+        s1_embedding, s1_mask = self.zero_padding(s1_embedding, target_len=self.sentence_len)
+
         s2_embedding = get_embeddings(self.sentence2[index], self.sentence_len)
-        s2_embedding = self.zero_padding(s2_embedding, target_len=self.sentence_len)
-        return relation_to_index(self.relation[index]), s1_embedding, s2_embedding
+        s2_embedding, s2_mask = self.zero_padding(s2_embedding, target_len=self.sentence_len)
+
+        return relation_to_index(self.relation[index]), s1_embedding, s1_mask, s2_embedding, s2_mask
 
     def zero_padding(self, embedding, target_len):
         dim1 = embedding.shape[0]
         dim2 = embedding.shape[1]
         if dim1 >= target_len:
-            return embedding[0:target_len, :]
+            embedding = embedding[0:target_len, :]
+            mask = torch.ones_like(embedding)
+            return embedding, mask
         else:
+            mask = torch.ones_like(embedding)
             zeros = torch.zeros(target_len - dim1, dim2)
-            #neg_inf = zeros - float('inf')
+            mask = torch.cat((mask, zeros))
+            # neg_inf = zeros - float('inf')
             embedding = torch.cat((embedding, zeros))
-            return embedding
-        '''
-        else:
-           embedding = torch.cat((embedding, embedding), dim=0)
-           embedding = torch.cat((embedding, embedding), dim=0)
-           embedding = torch.cat((embedding, embedding), dim=0)
-           embedding = torch.cat((embedding, embedding), dim=0)
-           embedding = torch.cat((embedding, embedding), dim=0)
-           embedding = torch.cat((embedding, embedding), dim=0)
-           embedding = embedding[0:target_len, :]
-           return embedding
-        '''
+            return embedding, mask

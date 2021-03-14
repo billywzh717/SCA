@@ -9,6 +9,8 @@ import pandas as pd
 import jieba
 import re
 from gensim.models import KeyedVectors
+import fasttext as ft
+import spellchecker
 
 # http = urllib3.PoolManager()
 # r = http.request('GET', 'http://127.0.0.1:5000/word2vec/model?word=好')
@@ -17,12 +19,18 @@ from gensim.models import KeyedVectors
 # bbs = str(base64.b64decode(data))
 # print(bbs)
 
-# wv_from_text = KeyedVectors.load_word2vec_format('./dataset/tencent/Tencent_AILab_ChineseEmbedding.txt', binary=False)
-# wv_from_text.save('./dataset/tencent/tencent_chinese')
+# wv_from_text = KeyedVectors.load_word2vec_format('./dataset/tencent/crawl-300d-2M.vec', binary=False)
+# wv_from_text.save('./dataset/tencent/fasttext-crawl-300d-2M')
 
-wv_from_text = KeyedVectors.load('./dataset/tencent/baidubaike', mmap='r')
-vc = wv_from_text.get_vector('B')
+wv_from_text = KeyedVectors.load('./dataset/tencent/fasttext-crawl-300d-2M', mmap='r')
+vc = wv_from_text.get_vector('graphittied')
 print(vc)
+
+# print(ft.tokenize('A person on a horse jumps over a broken down airplane.'))
+# sc = spellchecker.spellchecker.SpellChecker()
+# result = sc.correction('mudpuddles')
+# print(result)
+
 
 # def get_embeddings(sentence, sentence_len=64):
 #     try:

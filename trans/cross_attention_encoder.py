@@ -50,45 +50,45 @@ class ScaledDotProductAttention(nn.Module):
 
 class MultiHeadAttention(nn.Module):
 
-    def __init__(self, in_feature=768, out_feature=768, num_heads=8, dropout=0.0):
+    def __init__(self, in_features=768, out_features=768, num_heads=8, dropout=0.0):
         super(MultiHeadAttention, self).__init__()
 
-        self.in_feature = in_feature
-        self.dim_per_head = out_feature // num_heads
+        self.in_features = in_features
+        self.dim_per_head = out_features // num_heads
         self.num_heads = num_heads
-        self.out_feature = out_feature
+        self.out_features = out_features
 
-        self.linear_q = nn.Linear(in_feature, num_heads * out_feature)
+        self.linear_q = nn.Linear(in_features, num_heads * out_features)
         torch.nn.init.xavier_uniform_(self.linear_q.weight, gain=1)
-        self.linear_k = nn.Linear(in_feature, num_heads * out_feature)
+        self.linear_k = nn.Linear(in_features, num_heads * out_features)
         torch.nn.init.xavier_uniform_(self.linear_k.weight, gain=1)
-        self.linear_v = nn.Linear(in_feature, num_heads * out_feature)
+        self.linear_v = nn.Linear(in_features, num_heads * out_features)
         torch.nn.init.xavier_uniform_(self.linear_v.weight, gain=1)
 
         self.w = torch.nn.Parameter(
-            torch.tensor(np.random.randn(in_feature, num_heads * out_feature), dtype=torch.float32))
+            torch.tensor(np.random.randn(in_features, num_heads * out_features), dtype=torch.float32))
         torch.nn.init.xavier_uniform_(self.w, gain=1)
 
         '''
-        self.wq = torch.nn.Parameter(torch.tensor(np.random.randn(in_feature, num_heads*out_feature), dtype=torch.float32))
+        self.wq = torch.nn.Parameter(torch.tensor(np.random.randn(in_features, num_heads*out_features), dtype=torch.float32))
         torch.nn.init.xavier_uniform_(self.wq, gain=1)
-        self.wk = torch.nn.Parameter(torch.tensor(np.random.randn(in_feature, num_heads*out_feature), dtype=torch.float32))
+        self.wk = torch.nn.Parameter(torch.tensor(np.random.randn(in_features, num_heads*out_features), dtype=torch.float32))
         torch.nn.init.xavier_uniform_(self.wk, gain=1)
-        self.wv = torch.nn.Parameter(torch.tensor(np.random.randn(in_feature, num_heads*out_feature), dtype=torch.float32))
+        self.wv = torch.nn.Parameter(torch.tensor(np.random.randn(in_features, num_heads*out_features), dtype=torch.float32))
         torch.nn.init.xavier_uniform_(self.wv, gain=1)
         '''
         self.dot_product_attention = ScaledDotProductAttention(dropout)
-        self.linear_final = nn.Linear(num_heads * out_feature, in_feature)
+        self.linear_final = nn.Linear(num_heads * out_features, in_features)
         torch.nn.init.xavier_uniform_(self.linear_final.weight, gain=1)
         self.dropout = nn.Dropout(dropout)
         # multi-head attention之后需要做layer norm
-        self.layer_norm = nn.LayerNorm(in_feature)
+        self.layer_norm = nn.LayerNorm(in_features)
 
     def forward(self, query, key, value, attn_mask=None):
         # 残差连接
         residual = value
 
-        dim_per_head = self.out_feature
+        dim_per_head = self.out_features
         num_heads = self.num_heads
         batch_size = key.shape[0]
 
@@ -103,9 +103,9 @@ class MultiHeadAttention(nn.Module):
         value = torch.matmul(value, self.wv)
         '''
         # split by heads
-        query = query.view(batch_size, -1, num_heads, self.out_feature)
-        key = key.view(batch_size, -1, num_heads, self.out_feature)
-        value = value.view(batch_size, -1, num_heads, self.out_feature)
+        query = query.view(batch_size, -1, num_heads, self.out_features)
+        key = key.view(batch_size, -1, num_heads, self.out_features)
+        value = value.view(batch_size, -1, num_heads, self.out_features)
 
         query = query.transpose(1, 2)
         key = key.transpose(1, 2)
@@ -113,7 +113,7 @@ class MultiHeadAttention(nn.Module):
 
         # scaled dot product attention
         context, attention = self.attention(query, key, value, self.dim_per_head, None)
-        context = context.transpose(1, 2).contiguous().view(batch_size, -1, self.out_feature * self.num_heads)
+        context = context.transpose(1, 2).contiguous().view(batch_size, -1, self.out_features * self.num_heads)
 
         '''
         if attn_mask:
@@ -176,40 +176,33 @@ class PositionalEncoding(nn.Module):
 
 class PositionalWiseFeedForward(nn.Module):
 
-    def __init__(self, in_feature=768, ffn_dim=2048, dropout=0.0):
+    def __init__(self, in_features=768, ffn_dim=2048, dropout=0.0):
         super(PositionalWiseFeedForward, self).__init__()
-        self.w1 = nn.Conv1d(in_feature, ffn_dim, 1)
-        self.w2 = nn.Conv1d(ffn_dim, in_feature, 1)
+        self.linear1 = nn.Linear(in_features=in_features, out_features=ffn_dim)
+        self.linear2 = nn.Linear(in_features=ffn_dim, out_features=in_features)
         self.dropout = nn.Dropout(dropout)
-        self.layer_norm = nn.LayerNorm(in_feature)
+        self.layer_norm = nn.LayerNorm(in_features)
 
     def forward(self, x):
-        output = x.transpose(1, 2)
-        output = self.w2(F.relu(self.w1(output)))
-        output = self.dropout(output.transpose(1, 2))
-
-        # add residual and norm layer
+        output = self.linear2(F.relu(self.linear1(x)))
+        output = self.dropout(output)
         output = self.layer_norm(x + output)
         return output
 
 
 class CrossAttentionEncoderLayer(nn.Module):
-    """Encoder的一层。"""
 
-    def __init__(self, in_feature=768, out_feature=256, num_heads=8, ffn_dim=2018, dropout=0.0):
+    def __init__(self, in_features=768, out_features=256, num_heads=8, ffn_dim=2018, dropout=0.0):
         super(CrossAttentionEncoderLayer, self).__init__()
 
-        self.attention = MultiHeadAttention(in_feature=in_feature,
-                                            out_feature=out_feature,
+        self.attention = MultiHeadAttention(in_features=in_features,
+                                            out_features=out_features,
                                             num_heads=num_heads,
                                             dropout=dropout)
-        self.feed_forward = PositionalWiseFeedForward(in_feature, ffn_dim, dropout)
+        self.feed_forward = PositionalWiseFeedForward(in_features, ffn_dim, dropout)
 
     def forward(self, q, k, v, attn_mask=None):
-        # self attention
         # context, attention = self.attention(q, k, v, padding_mask)
         context, attention = self.attention(q, k, v)
-        # feed forward network
         output = self.feed_forward(context)
-
         return output, attention
